@@ -48,7 +48,13 @@ downloads files.
   - Windows: `drwzones.xml` from the product's data folder
 - Internet access on the machine that runs the download.
 
-Put both files next to the program and it will find them.
+Both are found without asking when they sit next to the program, and either can
+be pointed at with the **Choose…** button in the window or with `--key` /
+`--zone` on the command line. On Linux, if no zone file is next to the program,
+the one of the antivirus installed on this machine is used and named as such —
+convenient when you update the machine you are sitting at, but it is the wrong
+line whenever the bases are meant for a different build, so check what the
+window says.
 
 ## Usage
 
