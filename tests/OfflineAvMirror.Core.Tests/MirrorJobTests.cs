@@ -164,6 +164,36 @@ public sealed class MirrorJobTests : IDisposable
     }
 
     [Fact]
+    public async Task A_named_output_folder_is_created_when_its_parent_exists()
+    {
+        Serve(Primary);
+        var wanted = Path.Combine(_out, "new-folder");
+
+        var result = await new MirrorJob(new MirrorOptions
+        {
+            KeyPath = _files.Write("drweb32.key", TestFiles.Key()),
+            ZonePath = _files.Write("zone.ini", TestFiles.UnixZone),
+            OutputDirectory = wanted,
+            RequiredFreeMegabytes = 0,
+        }, _mirror).RunAsync(null, TestContext.Current.CancellationToken);
+
+        Assert.StartsWith(wanted, result.OutputPath, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void A_typo_in_the_path_is_still_refused()
+    {
+        var job = new MirrorJob(new MirrorOptions
+        {
+            KeyPath = _files.Write("drweb32.key", TestFiles.Key()),
+            ZonePath = _files.Write("zone.ini", TestFiles.UnixZone),
+            OutputDirectory = Path.Combine(_out, "no-such-parent", "out"),
+        }, _mirror);
+
+        Assert.Throws<UserFacingException>(() => job.Preflight());
+    }
+
+    [Fact]
     public void An_expired_license_is_refused_before_any_request()
     {
         var job = new MirrorJob(new MirrorOptions
