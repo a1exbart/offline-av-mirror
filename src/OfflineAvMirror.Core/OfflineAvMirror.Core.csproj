@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Everything that talks to the update mirror and writes files.
+       No UI here: the window and the command line are thin shells over it. -->
+
+  <PropertyGroup>
+    <RootNamespace>OfflineAvMirror.Core</RootNamespace>
+    <IsTrimmable>true</IsTrimmable>
+    <IsAotCompatible>true</IsAotCompatible>
+    <!-- Source-generated P/Invoke (LibraryImport) for the Windows UI language. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="OfflineAvMirror.Core.Tests" />
+  </ItemGroup>
+
+</Project>
