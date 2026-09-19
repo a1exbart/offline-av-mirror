@@ -1,0 +1,19 @@
+# Build output
+bin/
+obj/
+artifacts/
+
+# Editors
+.vs/
+.vscode/
+.idea/
+*.user
+
+# Local results and anything that looks like a credential or vendor data
+av-bases-*/
+av-bases-*.tar.gz
+av-bases-*.zip
+*.sha256
+*.key
+zone.ini
+drwzones.xml
