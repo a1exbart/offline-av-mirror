@@ -1,0 +1,56 @@
+# A release is cut by pushing a tag: git tag -a v1.2.3 -m … && git push --tags
+# CI never writes to the repository; the tag is the only input.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+  DOTNET_NOLOGO: "1"
+  CI: "true"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # git-cliff needs the history to write the notes
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Test
+        run: dotnet test -c Release
+
+      - name: Publish both platforms
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          for rid in linux-x64 win-x64; do
+            dotnet publish src/OfflineAvMirror -c Release -r "$rid" \
+              -p:Version="$version" -o "artifacts/$rid"
+          done
+          mkdir -p artifacts/release
+          cp artifacts/linux-x64/offline-av-mirror artifacts/release/offline-av-mirror-linux-x64
+          cp artifacts/win-x64/offline-av-mirror.exe artifacts/release/offline-av-mirror-win-x64.exe
+          cd artifacts/release && sha256sum * > SHA256SUMS.txt
+
+      - name: Release notes
+        run: |
+          curl -sSfL https://github.com/orhun/git-cliff/releases/download/v2.10.0/git-cliff-2.10.0-x86_64-unknown-linux-gnu.tar.gz \
+            | tar xz --strip-components=1 -C /usr/local/bin git-cliff-2.10.0/git-cliff
+          git-cliff --latest --strip all > artifacts/release-notes.md
+          cat artifacts/release-notes.md
+
+      # GitHub and Gitea both expose an API here, but they disagree about the
+      # details, so each gets its own path.
+      - name: Publish the release
+        env:
+          TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+        run: bash .github/publish-release.sh
