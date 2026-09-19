@@ -1,0 +1,65 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:app="using:OfflineAvMirror"
+        x:Class="OfflineAvMirror.AboutWindow"
+        Title="{x:Static app:Strings.About}"
+        Width="580" Height="700"
+        MinWidth="460" MinHeight="360"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource AppBg}">
+
+  <!-- Order on purpose: what it does, then what it does NOT do and what happens
+       to the license key. Those two are the first questions asked about a tool
+       that runs inside a protected perimeter. -->
+  <Grid RowDefinitions="Auto,*,Auto" Margin="28,24">
+
+    <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="16" Margin="0,0,0,20">
+      <Image Source="avares://offline-av-mirror/Assets/icon-128.png" Width="56" Height="56" VerticalAlignment="Top" />
+      <StackPanel VerticalAlignment="Center">
+        <TextBlock Classes="h1" Text="{x:Static app:Strings.AppTitle}" />
+        <TextBlock Classes="label" Text="{x:Static app:Strings.Version}" Margin="0,4,0,0" />
+      </StackPanel>
+    </StackPanel>
+
+    <!-- Scrolls rather than fits: at 125% scaling any chosen height eventually
+         pushes the close button off the screen. -->
+    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="0,0,8,0">
+      <StackPanel Spacing="12">
+
+        <Border Classes="card">
+          <StackPanel Spacing="4">
+            <TextBlock Classes="label" Text="{x:Static app:Strings.AboutWhatItDoes}" />
+            <TextBlock Classes="value" TextWrapping="Wrap" Text="{x:Static app:Strings.AboutWhatItDoesText}" />
+          </StackPanel>
+        </Border>
+
+        <Border Classes="card">
+          <StackPanel Spacing="4">
+            <TextBlock Classes="label" Text="{x:Static app:Strings.AboutWhatItDoesNot}" />
+            <TextBlock Classes="value" TextWrapping="Wrap" Text="{x:Static app:Strings.AboutWhatItDoesNotText}" />
+          </StackPanel>
+        </Border>
+
+        <Border Classes="card">
+          <StackPanel Spacing="4">
+            <TextBlock Classes="label" Text="{x:Static app:Strings.AboutKeyTitle}" />
+            <TextBlock Classes="value" TextWrapping="Wrap" Text="{x:Static app:Strings.AboutKeyText}" />
+          </StackPanel>
+        </Border>
+
+        <Border Classes="card">
+          <StackPanel Spacing="4">
+            <TextBlock Classes="label" Text="{x:Static app:Strings.AboutIntegrity}" />
+            <TextBlock Classes="value" TextWrapping="Wrap" Text="{x:Static app:Strings.AboutIntegrityText}" />
+          </StackPanel>
+        </Border>
+
+      </StackPanel>
+    </ScrollViewer>
+
+    <StackPanel Grid.Row="2" Spacing="12" Margin="0,18,0,0">
+      <TextBlock Classes="label" TextWrapping="Wrap" Text="{x:Static app:Strings.Trademark}" />
+      <Button Name="CloseButton" Content="{x:Static app:Strings.Close}" HorizontalAlignment="Right" Padding="20,8" />
+    </StackPanel>
+  </Grid>
+</Window>

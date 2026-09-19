@@ -1,0 +1,38 @@
+<!-- One palette for both themes. No colour is ever set from C#: everything is
+     painted through these brushes, so a theme switch takes effect everywhere.
+     The dark set is chosen rather than inverted — the same green looks toxic on
+     a dark background and the red of a failure stops being readable. -->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ResourceDictionary.ThemeDictionaries>
+
+    <ResourceDictionary x:Key="Light">
+      <SolidColorBrush x:Key="AppBg"        Color="#FFFFFF" />
+      <SolidColorBrush x:Key="AppCard"      Color="#FBFBFD" />
+      <SolidColorBrush x:Key="AppBorder"    Color="#E3E3E8" />
+      <SolidColorBrush x:Key="AppBorderHot" Color="#B9BAC2" />
+      <SolidColorBrush x:Key="AppInk"       Color="#1B1B1F" />
+      <SolidColorBrush x:Key="AppMuted"     Color="#6B6B76" />
+      <SolidColorBrush x:Key="AppAccent"    Color="#3ECF77" />
+      <SolidColorBrush x:Key="AppAccentBg"  Color="#E8F5EC" />
+      <SolidColorBrush x:Key="AppAccentInk" Color="#14532D" />
+      <SolidColorBrush x:Key="AppOk"        Color="#1F6B3A" />
+      <SolidColorBrush x:Key="AppDanger"    Color="#B3261E" />
+    </ResourceDictionary>
+
+    <ResourceDictionary x:Key="Dark">
+      <SolidColorBrush x:Key="AppBg"        Color="#1B1D1E" />
+      <SolidColorBrush x:Key="AppCard"      Color="#232628" />
+      <SolidColorBrush x:Key="AppBorder"    Color="#33383B" />
+      <SolidColorBrush x:Key="AppBorderHot" Color="#4C5357" />
+      <SolidColorBrush x:Key="AppInk"       Color="#ECEDEE" />
+      <SolidColorBrush x:Key="AppMuted"     Color="#9AA0A4" />
+      <SolidColorBrush x:Key="AppAccent"    Color="#4FDD88" />
+      <SolidColorBrush x:Key="AppAccentBg"  Color="#1E3327" />
+      <SolidColorBrush x:Key="AppAccentInk" Color="#8FE9B4" />
+      <SolidColorBrush x:Key="AppOk"        Color="#6FE0A0" />
+      <SolidColorBrush x:Key="AppDanger"    Color="#FF8A80" />
+    </ResourceDictionary>
+
+  </ResourceDictionary.ThemeDictionaries>
+</ResourceDictionary>

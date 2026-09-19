@@ -1,0 +1,96 @@
+<!-- Cards, segments and header buttons. Colours come from Palette.axaml through
+     DynamicResource, so the theme switches live. -->
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <Style Selector="Border.card">
+    <Setter Property="Background" Value="{DynamicResource AppCard}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource AppBorder}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Padding" Value="16,12" />
+  </Style>
+
+  <Style Selector="TextBlock.label">
+    <Setter Property="Foreground" Value="{DynamicResource AppMuted}" />
+    <Setter Property="FontSize" Value="12" />
+  </Style>
+  <Style Selector="TextBlock.value">
+    <Setter Property="FontSize" Value="14" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+    <Setter Property="Margin" Value="0,2,0,0" />
+  </Style>
+  <Style Selector="TextBlock.h1">
+    <Setter Property="FontSize" Value="20" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="TextBlock.danger">
+    <Setter Property="Foreground" Value="{DynamicResource AppDanger}" />
+  </Style>
+  <Style Selector="TextBlock.ok">
+    <Setter Property="Foreground" Value="{DynamicResource AppOk}" />
+  </Style>
+
+  <!-- Two choices, both visible at once: a segmented control, not a drop-down.
+       The selected one is marked by a class rather than a toggle state — the
+       Fluent theme repaints ToggleButton its own way and the selection was
+       invisible on a real machine. -->
+  <Style Selector="Border.seg">
+    <Setter Property="Background" Value="{DynamicResource AppCard}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource AppBorder}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Padding" Value="16,10" />
+  </Style>
+  <Style Selector="Border.seg:pointerover">
+    <Setter Property="BorderBrush" Value="{DynamicResource AppBorderHot}" />
+  </Style>
+  <Style Selector="Border.seg.on">
+    <Setter Property="Background" Value="{DynamicResource AppAccentBg}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource AppAccent}" />
+    <Setter Property="BorderThickness" Value="2" />
+    <Setter Property="Padding" Value="15,9" />
+  </Style>
+  <Style Selector="Border.seg > StackPanel > TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource AppInk}" />
+  </Style>
+  <Style Selector="Border.seg.on > StackPanel > TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource AppAccentInk}" />
+  </Style>
+  <Style Selector="Border.seg Path">
+    <Setter Property="Stroke" Value="{DynamicResource AppMuted}" />
+    <Setter Property="StrokeThickness" Value="1.6" />
+  </Style>
+  <Style Selector="Border.seg.on Path">
+    <Setter Property="Stroke" Value="{DynamicResource AppOk}" />
+  </Style>
+
+  <!-- Header buttons: no border, and no focus rectangle — on an 18x18 icon the
+       Fluent focus adorner reads as a rendering defect. -->
+  <Style Selector="Button.chrome">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Foreground" Value="{DynamicResource AppMuted}" />
+    <Setter Property="Padding" Value="10,6" />
+    <Setter Property="CornerRadius" Value="6" />
+    <Setter Property="FocusAdorner" Value="{x:Null}" />
+  </Style>
+  <Style Selector="Button.chrome /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="CornerRadius" Value="6" />
+  </Style>
+  <Style Selector="Button.chrome:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource AppCard}" />
+    <Setter Property="BorderThickness" Value="0" />
+  </Style>
+  <Style Selector="Button.chrome:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource AppAccentBg}" />
+    <Setter Property="BorderThickness" Value="0" />
+  </Style>
+  <Style Selector="Button.chrome Path">
+    <Setter Property="Stroke" Value="{DynamicResource AppMuted}" />
+    <Setter Property="StrokeThickness" Value="1.6" />
+  </Style>
+
+</Styles>

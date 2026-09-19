@@ -1,0 +1,58 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- WinExe: a double click on Windows must not open a console behind the
+         window. The command-line mode reattaches to the parent console. -->
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>OfflineAvMirror</RootNamespace>
+    <AssemblyName>offline-av-mirror</AssemblyName>
+    <ApplicationIcon>Assets/icon.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <!-- One self-contained file per platform: nothing to install on the machine
+       it runs on. The runtime identifier comes from the command line
+       (dotnet publish -r win-x64 | linux-x64). -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <DebugType>none</DebugType>
+    <PublishTrimmed>true</PublishTrimmed>
+    <!-- Partial: only assemblies that declare themselves trimmable are trimmed.
+         Avalonia resolves parts of its XAML through reflection. -->
+    <TrimMode>partial</TrimMode>
+    <!-- IL2104 is the roll-up "this third-party assembly produced trim
+         warnings"; Avalonia's designer support always does. Warnings from our
+         own code keep failing the build. -->
+    <NoWarn>$(NoWarn);IL2104</NoWarn>
+  </PropertyGroup>
+
+  <!-- The release is ONE file. Native packages publish their debug symbols as
+       content, and documentation XML rides along with every assembly; next to
+       the program they are three files where the user expects one. -->
+  <Target Name="DropSymbolsAndDocs" AfterTargets="ComputeResolvedFilesToPublishList">
+    <ItemGroup>
+      <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)"
+                             Condition="'%(Extension)' == '.pdb' Or '%(Extension)' == '.xml'" />
+    </ItemGroup>
+  </Target>
+
+  <ItemGroup>
+    <AvaloniaResource Include="Assets/icon-128.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="Avalonia.Desktop" />
+    <PackageReference Include="Avalonia.Themes.Fluent" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../OfflineAvMirror.Core/OfflineAvMirror.Core.csproj" />
+  </ItemGroup>
+
+</Project>
