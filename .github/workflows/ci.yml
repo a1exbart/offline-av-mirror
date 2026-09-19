@@ -1,15 +1,21 @@
-# Build, test and publish both platforms on every change.
-# The same file runs on GitHub Actions and on Gitea Actions.
+# One workflow for everything: build and test on every change, and publish a
+# release from main. The same file runs on GitHub Actions and on Gitea Actions.
+#
+# Versions are never stored in a file. A push to main lets git-cliff work out
+# the bump from the conventional commits since the last tag and publishes that
+# version as a pre-release — a build artifact nobody has accepted yet. A tag
+# pushed by hand publishes a finished release.
 name: ci
 
 on:
   push:
     branches: [main]
+    tags: ["v*"]
   pull_request:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: "1"
@@ -39,17 +45,19 @@ jobs:
         run: dotnet test --no-build -c Release --logger "trx;LogFileName=tests.trx" --results-directory artifacts/tests
 
       # upload-artifact v4 talks to an API only github.com implements; on a
-      # self-hosted forge it refuses outright. Nothing depends on these
-      # artifacts, so they are simply skipped there.
+      # self-hosted forge it refuses outright. Nothing depends on these files.
       - uses: actions/upload-artifact@v4
         if: always() && github.server_url == 'https://github.com'
         with:
           name: test-results
           path: artifacts/tests
 
+  # Proof that both platforms still build. On main and on a tag the release job
+  # builds them anyway, so this one steps aside.
   publish:
     runs-on: ubuntu-latest
     needs: test
+    if: github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/')
     strategy:
       matrix:
         rid: [linux-x64, win-x64]
@@ -60,13 +68,11 @@ jobs:
         with:
           global-json-file: global.json
 
-      # A build from a branch is not a release; it is named after the commit so
-      # nobody mistakes it for one.
       - name: Publish ${{ matrix.rid }}
         run: |
-          version="0.0.0-ci.${GITHUB_RUN_NUMBER}+${GITHUB_SHA::7}"
           dotnet publish src/OfflineAvMirror -c Release -r ${{ matrix.rid }} \
-            -p:Version=0.0.0 -p:InformationalVersion="$version" \
+            -p:Version=0.0.0 \
+            -p:InformationalVersion="0.0.0-ci.${GITHUB_RUN_NUMBER}+${GITHUB_SHA::7}" \
             -o artifacts/${{ matrix.rid }}
 
       - uses: actions/upload-artifact@v4
@@ -75,6 +81,43 @@ jobs:
           name: offline-av-mirror-${{ matrix.rid }}
           path: artifacts/${{ matrix.rid }}
 
-      - name: Where the build landed
-        if: github.server_url != 'https://github.com'
-        run: ls -la artifacts/${{ matrix.rid }}
+  release:
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # git-cliff needs the history and the tags
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Work out the version
+        id: version
+        env:
+          CLIFF_VERSION: 2.14.2
+          CLIFF_SHA512: 26d1f7c8ea2400f2ccb0b2e7f321635f600b583bf4cd1f7afaa5e8c24068ad1088a2504e0a4d9f4333d4bb20a80329327d9462634343ee3af91e1a7fbdc6f18a
+        run: bash .github/version.sh
+
+      - name: Build both platforms
+        if: steps.version.outputs.release == 'true'
+        run: |
+          version="${{ steps.version.outputs.version }}"
+          for rid in linux-x64 win-x64; do
+            dotnet publish src/OfflineAvMirror -c Release -r "$rid" \
+              -p:Version="${version#v}" -o "artifacts/$rid"
+          done
+          mkdir -p artifacts/release
+          cp artifacts/linux-x64/offline-av-mirror artifacts/release/offline-av-mirror-linux-x64
+          cp artifacts/win-x64/offline-av-mirror.exe artifacts/release/offline-av-mirror-win-x64.exe
+          cd artifacts/release && sha256sum * > SHA256SUMS.txt
+
+      - name: Publish the release
+        if: steps.version.outputs.release == 'true'
+        env:
+          TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+          PRERELEASE: ${{ steps.version.outputs.prerelease }}
+        run: bash .github/publish-release.sh

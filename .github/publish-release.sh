@@ -1,55 +1,71 @@
 #!/usr/bin/env bash
 #
-# Create the release for the tag that triggered the workflow and attach the
-# built files.
+# Create the release and attach the built files.
 #
-# GitHub and Gitea expose almost the same REST API, and they differ exactly
-# where it matters: GitHub uploads an asset to a separate host with a raw body,
-# Gitea takes it as multipart on the same host. Both paths live here so the
-# workflow file stays readable.
+# The tag itself is created by this call: both forges create a tag at
+# target_commitish when the release names one that does not exist yet, so CI
+# never pushes to the repository.
+#
+# GitHub and Gitea differ exactly where it matters — GitHub uploads assets to a
+# separate host with a raw body, Gitea takes multipart on the same host — so
+# each gets its own path here and the workflow file stays readable.
 #
 # Only curl and python3 are used: jq is not in every runner image, python3 is.
+# Nothing here relies on curl newer than 7.74 either (no --fail-with-body).
 set -euo pipefail
 
-tag="${GITHUB_REF_NAME:?no tag}"
+version="${VERSION:?no version}"
+prerelease="${PRERELEASE:-true}"
 repo="${GITHUB_REPOSITORY:?no repository}"
+sha="${GITHUB_SHA:?no commit}"
 api="${GITHUB_API_URL:-https://api.github.com}"
-notes="artifacts/release-notes.md"
 token="${TOKEN:?no token}"
-
-# A SemVer pre-release (v1.2.3-rc.1) is published as a pre-release. Nothing else
-# distinguishes a candidate from a finished version.
-prerelease=false
-case "$tag" in *-*) prerelease=true ;; esac
+notes="artifacts/release-notes.md"
 
 case "$api" in
     *api.github.com*) flavour="github" ;;
     *)                flavour="gitea" ;;
 esac
+base="$api/repos/$repo"
 
-echo "publishing $tag to $flavour ($api), prerelease=$prerelease"
+echo "publishing $version to $flavour ($api), prerelease=$prerelease"
 
-payload="$(python3 - "$tag" "$notes" "$prerelease" <<'PY'
+# post <url> <curl args…> — fails loudly with the server's own answer, which is
+# the only thing that ever explains a 401 or a 403.
+post() {
+    local url="$1" body code
+    shift
+    body="$(mktemp)"
+    code="$(curl -sS -o "$body" -w '%{http_code}' -X POST \
+        -H "Authorization: token $token" "$@" "$url")"
+    if [ "$code" -ge 400 ]; then
+        echo "POST $url -> HTTP $code" >&2
+        cat "$body" >&2
+        rm -f "$body"
+        return 1
+    fi
+    cat "$body"
+    rm -f "$body"
+}
+
+payload="$(python3 - "$version" "$notes" "$prerelease" "$sha" <<'PY'
 import json, sys
-tag, notes, prerelease = sys.argv[1], sys.argv[2], sys.argv[3] == "true"
+version, notes, prerelease, sha = sys.argv[1:5]
 with open(notes, encoding="utf-8") as f:
     body = f.read()
 print(json.dumps({
-    "tag_name": tag,
-    "name": tag,
+    "tag_name": version,
+    "target_commitish": sha,
+    "name": version,
     "body": body,
-    "prerelease": prerelease,
+    "prerelease": prerelease == "true",
+    "draft": False,
 }))
 PY
 )"
 
-base="$api/repos/$repo"
-release="$(curl -sS --fail-with-body -X POST \
-    -H "Authorization: token $token" \
-    -H "Content-Type: application/json" \
-    -H "Accept: application/json" \
-    -d "$payload" "$base/releases")"
-
+release="$(post "$base/releases" \
+    -H "Content-Type: application/json" -H "Accept: application/json" -d "$payload")"
 id="$(printf '%s' "$release" | python3 -c 'import json,sys; print(json.load(sys.stdin)["id"])')"
 echo "release $id created"
 
@@ -57,18 +73,12 @@ for file in artifacts/release/*; do
     name="$(basename "$file")"
     if [ "$flavour" = "github" ]; then
         upload="${base/api.github.com/uploads.github.com}"
-        curl -sS --fail-with-body -X POST \
-            -H "Authorization: token $token" \
-            -H "Content-Type: application/octet-stream" \
-            --data-binary "@$file" \
-            "$upload/releases/$id/assets?name=$name" > /dev/null
+        post "$upload/releases/$id/assets?name=$name" \
+            -H "Content-Type: application/octet-stream" --data-binary "@$file" > /dev/null
     else
-        curl -sS --fail-with-body -X POST \
-            -H "Authorization: token $token" \
-            -F "attachment=@$file" \
-            "$base/releases/$id/assets?name=$name" > /dev/null
+        post "$base/releases/$id/assets?name=$name" -F "attachment=@$file" > /dev/null
     fi
     echo "attached $name"
 done
 
-echo "released $tag"
+echo "released $version"

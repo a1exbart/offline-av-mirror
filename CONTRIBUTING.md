@@ -33,6 +33,15 @@ part of the build.
   `fix:`, `feat:`, `docs:`, `refactor:`, `test:`, `ci:`, `chore:`. The release
   notes are generated from them.
 
+## Releases
+
+Versions are not stored anywhere in the tree. A push to `main` lets git-cliff
+work out the bump from the commits since the last tag and publishes that version
+as a **pre-release** — a build artifact nobody has accepted yet. A tag pushed by
+hand (`git tag -a v1.2.3 -m v1.2.3 && git push origin v1.2.3`) publishes a
+finished release. `build/next-version.sh` prints what the next version would be
+and the command that cuts it.
+
 ## Reporting a bug
 
 Say what you ran, what you expected, and what happened, with the exact output.
