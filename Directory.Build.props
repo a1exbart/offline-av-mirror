@@ -1,0 +1,35 @@
+<Project>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- XML docs are for readers of the source, not a published API surface. -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+
+    <Deterministic>true</Deterministic>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <InvariantGlobalization>true</InvariantGlobalization>
+
+    <Authors>a1exbart</Authors>
+    <Copyright>Copyright 2026 a1exbart</Copyright>
+    <Product>offline-av-mirror</Product>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/a1exbart/offline-av-mirror</RepositoryUrl>
+
+    <!-- CI passes the version derived from the git tag; local builds say so. -->
+    <Version Condition="'$(Version)' == ''">0.0.0-dev</Version>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(CI)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <RestoreLockedMode>true</RestoreLockedMode>
+  </PropertyGroup>
+
+</Project>

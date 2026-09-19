@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/OfflineAvMirror.Core/OfflineAvMirror.Core.csproj" />
+    <Project Path="src/OfflineAvMirror/OfflineAvMirror.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/OfflineAvMirror.Core.Tests/OfflineAvMirror.Core.Tests.csproj" />
+  </Folder>
+</Solution>

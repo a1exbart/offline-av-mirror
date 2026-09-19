@@ -1,0 +1,50 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{json,yml,yaml,md,axaml,csproj,props,targets,slnx,xml,manifest}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.cs]
+# Code style, enforced in the build (EnforceCodeStyleInBuild).
+csharp_new_line_before_open_brace = all
+csharp_style_namespace_declarations = file_scoped:warning
+csharp_style_var_for_built_in_types = true:silent
+csharp_style_var_when_type_is_apparent = true:silent
+csharp_prefer_braces = when_multiline:silent
+dotnet_sort_system_directives_first = true
+dotnet_style_qualification_for_field = false:warning
+dotnet_style_qualification_for_property = false:warning
+
+# Constants and static fields are PascalCase; these rules come first, because
+# the first matching one wins.
+dotnet_naming_rule.const_fields.severity = warning
+dotnet_naming_rule.const_fields.symbols = const_field
+dotnet_naming_rule.const_fields.style = pascal
+dotnet_naming_symbols.const_field.applicable_kinds = field
+dotnet_naming_symbols.const_field.required_modifiers = const
+
+dotnet_naming_rule.static_fields.severity = warning
+dotnet_naming_rule.static_fields.symbols = static_field
+dotnet_naming_rule.static_fields.style = pascal
+dotnet_naming_symbols.static_field.applicable_kinds = field
+dotnet_naming_symbols.static_field.required_modifiers = static
+
+# Ordinary private fields are _camelCase.
+dotnet_naming_rule.private_fields.severity = warning
+dotnet_naming_rule.private_fields.symbols = private_field
+dotnet_naming_rule.private_fields.style = underscore_camel
+dotnet_naming_symbols.private_field.applicable_kinds = field
+dotnet_naming_symbols.private_field.applicable_accessibilities = private
+dotnet_naming_style.pascal.capitalization = pascal_case
+dotnet_naming_style.underscore_camel.required_prefix = _
+dotnet_naming_style.underscore_camel.capitalization = camel_case
