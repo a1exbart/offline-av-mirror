@@ -14,7 +14,6 @@
     <NoWarn>$(NoWarn);CS1591</NoWarn>
 
     <Deterministic>true</Deterministic>
-    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <InvariantGlobalization>true</InvariantGlobalization>
 
     <Authors>Alex Kolodchenko</Authors>
@@ -29,11 +28,6 @@
 
   <PropertyGroup Condition="'$(CI)' == 'true'">
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-    <!-- Locked restore only without a runtime identifier: a RID publish pulls in
-         its own graph (ILLink and the runtime packs) and would never match a lock
-         file written by a plain restore. The versions themselves are pinned
-         centrally either way. -->
-    <RestoreLockedMode Condition="'$(RuntimeIdentifier)' == ''">true</RestoreLockedMode>
   </PropertyGroup>
 
 </Project>
