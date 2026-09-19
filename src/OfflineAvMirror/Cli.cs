@@ -24,7 +24,7 @@ internal static class Cli
                     Console.WriteLine(Usage());
                     return 0;
                 case "--version" or "-V":
-                    Console.WriteLine($"{AppInfo.Name} {AppInfo.Version}");
+                    Console.WriteLine($"{AppInfo.Name} {AppInfo.FullVersion}");
                     return 0;
                 case "download":
                     return Download(Parse(args));
@@ -64,7 +64,7 @@ internal static class Cli
 
         var job = new MirrorJob(options);
         job.Preflight();
-        Console.WriteLine($"{AppInfo.Name} {AppInfo.Version}");
+        Console.WriteLine($"{AppInfo.Name} {AppInfo.FullVersion}");
         Console.WriteLine(T($"License:  No. {job.Key!.Number}, {Strings.LicenseExpires(job.Key.Expires)}",
                             $"Лицензия: № {job.Key!.Number}, {Strings.LicenseExpires(job.Key.Expires)}"));
         Console.WriteLine(T($"Zone:     {job.Zone!.Path}", $"Зона:     {job.Zone!.Path}"));

@@ -107,7 +107,9 @@ jobs:
           version="${{ steps.version.outputs.version }}"
           for rid in linux-x64 win-x64; do
             dotnet publish src/OfflineAvMirror -c Release -r "$rid" \
-              -p:Version="${version#v}" -o "artifacts/$rid"
+              -p:Version="${version#v}" \
+              -p:InformationalVersion="${version#v}+${GITHUB_SHA::7}" \
+              -o "artifacts/$rid"
           done
           mkdir -p artifacts/release
           cp artifacts/linux-x64/offline-av-mirror artifacts/release/offline-av-mirror-linux-x64

@@ -120,7 +120,7 @@ public static class Strings
 
     public static string KeyFiles => T("License key", "Лицензионный ключ");
 
-    public static string Version => T($"Version {AppInfo.Version}", $"Версия {AppInfo.Version}");
+    public static string Version => T($"Version {AppInfo.FullVersion}", $"Версия {AppInfo.FullVersion}");
 
     public static string AboutWhatItDoes => T("WHAT IT DOES", "ЧТО ДЕЛАЕТ");
 
