@@ -5,28 +5,19 @@
 [changelog]
 header = ""
 body = """
-{% if version %}\
-## {{ version | trim_start_matches(pat="v") }} — {{ timestamp | date(format="%Y-%m-%d") }}
-{% else %}\
-## Unreleased
-{% endif %}
+{% if version %}## {{ version | trim_start_matches(pat="v") }} — {{ timestamp | date(format="%Y-%m-%d") }}{% else %}## Unreleased{% endif %}
 {% for group, commits in commits | group_by(attribute="group") %}
 ### {{ group }}
-{% for commit in commits %}
-- {% if commit.scope %}**{{ commit.scope }}:** {% endif %}{{ commit.message | upper_first }}\
-{% endfor %}
-{% endfor %}
+{% for commit in commits %}- {% if commit.scope %}**{{ commit.scope }}:** {% endif %}{{ commit.message | upper_first }}
+{% endfor %}{% endfor %}\
 {% set breaking = commits | filter(attribute="breaking", value=true) %}\
 {% if breaking | length > 0 %}
 ### Breaking changes
-{% for commit in breaking %}
-- {% if commit.scope %}**{{ commit.scope }}:** {% endif %}{{ commit.breaking_description | upper_first }}\
-{% endfor %}
-{% endif %}
+{% for commit in breaking %}- {% if commit.scope %}**{{ commit.scope }}:** {% endif %}{{ commit.breaking_description | upper_first }}
+{% endfor %}{% endif %}\
 {% if previous.version and version %}
 **Full changelog:** {{ previous.version }}...{{ version }}
 {% endif %}
-
 Each binary is one self-contained file. `SHA256SUMS.txt` next to them is in
 `sha256sum` format, so `sha256sum -c SHA256SUMS.txt` verifies a download.
 """
