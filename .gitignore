@@ -17,3 +17,8 @@ av-bases-*.zip
 *.key
 zone.ini
 drwzones.xml
+
+# No lock files: every version is pinned in Directory.Packages.props, while the
+# implicit SDK packages (ILLink) move with the SDK patch and make a lock file
+# fail on any machine that has a different one.
+packages.lock.json
