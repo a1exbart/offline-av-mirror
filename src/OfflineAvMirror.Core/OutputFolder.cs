@@ -12,11 +12,28 @@ internal static class OutputFolder
     /// </summary>
     public static void Check(string directory, long requiredMegabytes)
     {
+        // A missing folder whose parent exists is created: the user named it, so
+        // they meant it. A missing parent is a typo and still refuses.
         if (!Directory.Exists(directory))
         {
-            throw new UserFacingException(
-                T($"The folder does not exist: {directory}", $"Папки не существует: {directory}"),
-                T("Choose an existing folder.", "Выберите существующую папку."));
+            var parent = Path.GetDirectoryName(Path.TrimEndingDirectorySeparator(Path.GetFullPath(directory)));
+            if (parent is null || !Directory.Exists(parent))
+            {
+                throw new UserFacingException(
+                    T($"The folder does not exist: {directory}", $"Папки не существует: {directory}"),
+                    T("Choose an existing folder.", "Выберите существующую папку."));
+            }
+
+            try
+            {
+                Directory.CreateDirectory(directory);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                throw new UserFacingException(
+                    T($"Cannot create the folder: {directory}", $"Не удалось создать папку: {directory}"),
+                    ex.Message, ex);
+            }
         }
 
         var probe = Path.Combine(directory, ".offline-av-mirror-write-test");

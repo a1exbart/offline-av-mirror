@@ -113,6 +113,26 @@ On the machine being updated:
 
 If you asked for an archive, verify it first: `sha256sum -c <archive>.sha256`.
 
+### If the machine refuses the bases
+
+Three answers from the vendor's tool are worth knowing in advance; all three were
+seen on live machines.
+
+- **"Operation is already in progress"** — the product keeps a flag that an update
+  was started, and it survives the update that set it. Clear it and repeat:
+  `drweb-ctl update --Stop`, then the same `update --from` again.
+- **"Permission denied … Make sure that user drweb has access"** — the service
+  runs as its own user and cannot read a folder inside someone's home directory.
+  Put the folder somewhere readable (`/var/tmp`, a mounted drive) and give it
+  `chmod -R a+rX`.
+- **"Virus databases are not loaded"** from `drweb-ctl baseinfo` — that reports
+  the state of the engine in memory, not of the disk. Right after an update it
+  is normal and says nothing about the bases you just installed. What tells the
+  truth is `/var/opt/drweb.com/bases/timestamp`: compare it before and after.
+
+`Zone DWS skipped` in the output is expected: this tool mirrors the virus bases,
+not the optional web-rating group.
+
 ## Limits worth knowing
 
 - The vendor signs its indexes, and **this tool cannot verify those signatures** —
