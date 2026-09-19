@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Source of the application icon. PNG and ICO are generated from this file by
+     build/render-icons.py.
+
+     The shape is deliberately generic: an arrow coming down into a tray, with
+     the dashed line standing for the gap the files are carried across. It must
+     read at 16 pixels, so there are four shapes and no gradients. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <rect width="256" height="256" rx="56" fill="#16211B"/>
+
+  <!-- the gap: what the bases are carried across -->
+  <line x1="40" y1="128" x2="216" y2="128" stroke="#2C6B47" stroke-width="8"
+        stroke-linecap="round" stroke-dasharray="18 18"/>
+
+  <!-- download arrow -->
+  <path d="M128 40 V104" stroke="#3ECF77" stroke-width="18" stroke-linecap="round"/>
+  <path d="M92 150 L128 190 L164 150" stroke="#3ECF77" stroke-width="18"
+        stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+  <!-- the tray it lands in -->
+  <path d="M56 196 V212 H200 V196" stroke="#3ECF77" stroke-width="16"
+        stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>

@@ -1,0 +1,168 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:app="using:OfflineAvMirror"
+        x:Class="OfflineAvMirror.MainWindow"
+        Title="{x:Static app:Strings.WindowTitle}"
+        Width="660" Height="620"
+        MinWidth="560" MinHeight="520"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource AppBg}">
+
+  <!-- One window in four states: ready, working, done, failed. No wizard: there
+       is one job to do, not a route of steps. -->
+  <Grid RowDefinitions="Auto,*,Auto" Margin="24">
+
+    <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,18">
+      <StackPanel Grid.Column="0" Spacing="4">
+        <TextBlock Classes="h1" Text="{x:Static app:Strings.Headline}" />
+        <TextBlock Classes="label" TextWrapping="Wrap" Text="{x:Static app:Strings.Subtitle}" />
+      </StackPanel>
+      <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top" Spacing="2">
+        <Button Name="ThemeButton" Classes="chrome">
+          <!-- The icon shows the current mode, not an invitation: sun, moon, or
+               half-circle for "follow the system". -->
+          <Panel Width="18" Height="18">
+            <Canvas Name="IconSun" Width="18" Height="18">
+              <Path Data="M9,4.8 A4.2,4.2 0 1 1 8.99,4.8 Z" />
+              <Path Data="M9,0.8 V2.3 M9,15.7 V17.2 M0.8,9 H2.3 M15.7,9 H17.2" />
+              <Path Data="M3.3,3.3 L4.4,4.4 M13.6,13.6 L14.7,14.7 M14.7,3.3 L13.6,4.4 M4.4,13.6 L3.3,14.7" />
+            </Canvas>
+            <Canvas Name="IconMoon" Width="18" Height="18" IsVisible="False">
+              <Path Data="M13.2,11.8 A5.6,5.6 0 1 1 7.6,3.2 A4.6,4.6 0 0 0 13.2,11.8 Z" />
+            </Canvas>
+            <Canvas Name="IconAuto" Width="18" Height="18" IsVisible="False">
+              <Path Data="M9,2 A7,7 0 1 1 8.99,2 Z" />
+              <Path Data="M9,2 A7,7 0 0 1 9,16 Z" Fill="{DynamicResource AppMuted}" />
+            </Canvas>
+          </Panel>
+        </Button>
+        <Button Name="AboutButton" Classes="chrome" Content="{x:Static app:Strings.About}" />
+      </StackPanel>
+    </Grid>
+
+    <!-- READY -->
+    <StackPanel Grid.Row="1" Name="ReadyPanel" Spacing="12">
+
+      <StackPanel Spacing="6">
+        <TextBlock Classes="label" Text="{x:Static app:Strings.TargetSystem}" />
+        <StackPanel Orientation="Horizontal" Spacing="8">
+
+          <Border Name="UnixCard" Classes="seg" Cursor="Hand" Focusable="True">
+            <StackPanel Orientation="Horizontal" Spacing="10">
+              <!-- A terminal prompt: drawn with paths, never an emoji — emoji
+                   differ between systems and fonts. -->
+              <Canvas Width="22" Height="18" VerticalAlignment="Center">
+                <Path Data="M1,1 H21 V17 H1 Z" />
+                <Path Data="M5,6 L8,9 L5,12" />
+                <Path Data="M11,12.5 H16" />
+              </Canvas>
+              <TextBlock Text="{x:Static app:Strings.LinuxLine}" FontWeight="SemiBold" VerticalAlignment="Center" />
+            </StackPanel>
+          </Border>
+
+          <Border Name="WindowsCard" Classes="seg" Cursor="Hand" Focusable="True">
+            <StackPanel Orientation="Horizontal" Spacing="10">
+              <Canvas Width="22" Height="18" VerticalAlignment="Center">
+                <Path Data="M2,2 H10 V8 H2 Z" />
+                <Path Data="M12,2 H20 V8 H12 Z" />
+                <Path Data="M2,10 H10 V16 H2 Z" />
+                <Path Data="M12,10 H20 V16 H12 Z" />
+              </Canvas>
+              <TextBlock Text="{x:Static app:Strings.WindowsLine}" FontWeight="SemiBold" VerticalAlignment="Center" />
+            </StackPanel>
+          </Border>
+
+        </StackPanel>
+      </StackPanel>
+
+      <Border Classes="card">
+        <Grid ColumnDefinitions="*,Auto">
+          <StackPanel Grid.Column="0">
+            <TextBlock Classes="label" Text="{x:Static app:Strings.LicenseKey}" />
+            <TextBlock Classes="value" Name="KeyValue" Text="{x:Static app:Strings.Searching}" />
+            <TextBlock Classes="value" Name="KeyTerm" />
+            <TextBlock Classes="value" Name="KeyOwner" />
+            <TextBlock Classes="label" Name="KeySourceText" Margin="0,4,0,0" />
+          </StackPanel>
+          <Button Grid.Column="1" Name="KeyBrowse" Content="{x:Static app:Strings.Browse}" VerticalAlignment="Center" />
+        </Grid>
+      </Border>
+
+      <Border Classes="card">
+        <Grid ColumnDefinitions="*,Auto">
+          <StackPanel Grid.Column="0">
+            <TextBlock Classes="label" Text="{x:Static app:Strings.UpdateLine}" />
+            <TextBlock Classes="value" Name="ZoneValue" Text="—" />
+            <TextBlock Classes="label" Name="ZoneSourceText" Margin="0,4,0,0" />
+          </StackPanel>
+          <Button Grid.Column="1" Name="ZoneBrowse" Content="{x:Static app:Strings.Browse}" VerticalAlignment="Center" />
+        </Grid>
+      </Border>
+
+      <Border Classes="card">
+        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+          <StackPanel Grid.Row="0" Grid.Column="0">
+            <TextBlock Classes="label" Text="{x:Static app:Strings.OutputFolder}" />
+            <TextBlock Classes="value" Name="OutValue" Text="—" />
+          </StackPanel>
+          <Button Grid.Row="0" Grid.Column="1" Name="OutBrowse" Content="{x:Static app:Strings.Browse}" VerticalAlignment="Center" />
+          <CheckBox Grid.Row="1" Grid.ColumnSpan="2" Name="ArchiveBox" Margin="0,10,0,0"
+                    Content="{x:Static app:Strings.PackIntoArchive}" />
+        </Grid>
+      </Border>
+
+      <TextBlock Name="BlockReason" Classes="label danger" TextWrapping="Wrap" IsVisible="False" />
+    </StackPanel>
+
+    <!-- WORKING -->
+    <StackPanel Grid.Row="1" Name="WorkPanel" Spacing="14" IsVisible="False" VerticalAlignment="Center">
+      <TextBlock Classes="h1" Text="{x:Static app:Strings.Working}" />
+      <ProgressBar Name="WorkBar" Minimum="0" Maximum="100" Height="6" />
+      <TextBlock Name="WorkFile" Classes="value" />
+      <TextBlock Name="WorkCount" Classes="label" />
+    </StackPanel>
+
+    <!-- DONE -->
+    <StackPanel Grid.Row="1" Name="DonePanel" Spacing="10" IsVisible="False">
+      <TextBlock Classes="h1 ok" Text="{x:Static app:Strings.Done}" />
+      <Border Classes="card">
+        <StackPanel Spacing="8">
+          <StackPanel>
+            <TextBlock Classes="label" Text="{x:Static app:Strings.ResultPath}" />
+            <SelectableTextBlock Name="DonePath" FontSize="14" TextWrapping="Wrap" />
+          </StackPanel>
+          <StackPanel>
+            <TextBlock Classes="label" Text="{x:Static app:Strings.ResultSize}" />
+            <TextBlock Name="DoneSize" Classes="value" />
+          </StackPanel>
+          <StackPanel Name="ChecksumBlock">
+            <TextBlock Classes="label" Text="{x:Static app:Strings.ResultChecksum}" />
+            <SelectableTextBlock Name="DoneSha" FontFamily="Consolas,DejaVu Sans Mono,monospace"
+                                 FontSize="12" TextWrapping="Wrap" />
+          </StackPanel>
+        </StackPanel>
+      </Border>
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <Button Name="CopyShaButton" Content="{x:Static app:Strings.CopyChecksum}" />
+        <Button Name="OpenFolderButton" Content="{x:Static app:Strings.OpenFolder}" />
+      </StackPanel>
+    </StackPanel>
+
+    <!-- FAILED -->
+    <StackPanel Grid.Row="1" Name="FailPanel" Spacing="10" IsVisible="False">
+      <TextBlock Classes="h1 danger" Text="{x:Static app:Strings.Failed}" />
+      <Border Classes="card">
+        <StackPanel Spacing="8">
+          <TextBlock Name="FailReason" Classes="value" FontSize="15" />
+          <TextBlock Name="FailHint" Classes="label" TextWrapping="Wrap" />
+        </StackPanel>
+      </Border>
+    </StackPanel>
+
+    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,18,0,0">
+      <Button Name="CancelButton" Content="{x:Static app:Strings.Cancel}" IsVisible="False" />
+      <Button Name="MainButton" Content="{x:Static app:Strings.Start}" IsEnabled="False"
+              Padding="20,8" FontWeight="SemiBold" />
+    </StackPanel>
+  </Grid>
+</Window>
