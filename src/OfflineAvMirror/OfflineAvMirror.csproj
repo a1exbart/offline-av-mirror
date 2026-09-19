@@ -13,9 +13,10 @@
   </PropertyGroup>
 
   <!-- One self-contained file per platform: nothing to install on the machine
-       it runs on. The runtime identifier comes from the command line
-       (dotnet publish -r win-x64 | linux-x64). -->
-  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+       it runs on. These apply only when a runtime identifier is given
+       (dotnet publish -r win-x64 | linux-x64); an ordinary Release build stays
+       framework-dependent, so `dotnet build -c Release` works on its own. -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release' And '$(RuntimeIdentifier)' != ''">
     <SelfContained>true</SelfContained>
     <PublishSingleFile>true</PublishSingleFile>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
