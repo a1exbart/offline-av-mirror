@@ -127,6 +127,16 @@ public sealed class ParsingTests : IDisposable
     }
 
     [Theory]
+    [InlineData("1.2.3+a1b2c3d", "1.2.3", "a1b2c3d")]
+    [InlineData("1.2.3", "1.2.3", "")]
+    [InlineData("0.0.0-ci.42+deadbee", "0.0.0-ci.42", "deadbee")]
+    [InlineData(null, "0.0.0-dev", "")]
+    public void Build_version_splits_into_version_and_commit(string? stamped, string version, string build)
+    {
+        Assert.Equal((version, build), AppInfo.Parse(stamped));
+    }
+
+    [Theory]
     [InlineData("ru_RU.UTF-8", UiLanguage.Russian)]
     [InlineData("ru", UiLanguage.Russian)]
     [InlineData("en_US.UTF-8", UiLanguage.English)]
