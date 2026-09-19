@@ -41,10 +41,17 @@ jobs:
           cp artifacts/win-x64/offline-av-mirror.exe artifacts/release/offline-av-mirror-win-x64.exe
           cd artifacts/release && sha256sum * > SHA256SUMS.txt
 
+      # The notes come from the conventional commits since the previous tag.
       - name: Release notes
+        env:
+          CLIFF_VERSION: 2.14.2
+          CLIFF_SHA512: 26d1f7c8ea2400f2ccb0b2e7f321635f600b583bf4cd1f7afaa5e8c24068ad1088a2504e0a4d9f4333d4bb20a80329327d9462634343ee3af91e1a7fbdc6f18a
         run: |
-          curl -sSfL https://github.com/orhun/git-cliff/releases/download/v2.10.0/git-cliff-2.10.0-x86_64-unknown-linux-gnu.tar.gz \
-            | tar xz --strip-components=1 -C /usr/local/bin git-cliff-2.10.0/git-cliff
+          archive="git-cliff-${CLIFF_VERSION}-x86_64-unknown-linux-gnu.tar.gz"
+          curl -sSfL -o "$archive" \
+            "https://github.com/orhun/git-cliff/releases/download/v${CLIFF_VERSION}/${archive}"
+          echo "${CLIFF_SHA512}  ${archive}" | sha512sum -c -
+          tar xzf "$archive" --strip-components=1 -C /usr/local/bin "git-cliff-${CLIFF_VERSION}/git-cliff"
           git-cliff --latest --strip all > artifacts/release-notes.md
           cat artifacts/release-notes.md
 

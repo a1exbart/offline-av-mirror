@@ -1,58 +1,74 @@
 #!/usr/bin/env bash
 #
-# Create the release and attach the artifacts.
+# Create the release for the tag that triggered the workflow and attach the
+# built files.
 #
-# GitHub and Gitea expose almost the same REST API, and the differences are
-# exactly where it matters: Gitea takes the asset name as a query parameter and
-# the file as multipart, GitHub takes it in the URL with the raw body. Both are
-# handled here so the workflow file stays readable.
+# GitHub and Gitea expose almost the same REST API, and they differ exactly
+# where it matters: GitHub uploads an asset to a separate host with a raw body,
+# Gitea takes it as multipart on the same host. Both paths live here so the
+# workflow file stays readable.
+#
+# Only curl and python3 are used: jq is not in every runner image, python3 is.
 set -euo pipefail
 
 tag="${GITHUB_REF_NAME:?no tag}"
 repo="${GITHUB_REPOSITORY:?no repository}"
 api="${GITHUB_API_URL:-https://api.github.com}"
 notes="artifacts/release-notes.md"
-assets=(artifacts/release/*)
+token="${TOKEN:?no token}"
 
-auth=(-H "Authorization: token ${TOKEN:?no token}")
+# A SemVer pre-release (v1.2.3-rc.1) is published as a pre-release. Nothing else
+# distinguishes a candidate from a finished version.
+prerelease=false
+case "$tag" in *-*) prerelease=true ;; esac
 
 case "$api" in
     *api.github.com*) flavour="github" ;;
     *)                flavour="gitea" ;;
 esac
 
-echo "publishing $tag to $flavour ($api)"
+echo "publishing $tag to $flavour ($api), prerelease=$prerelease"
 
-if [ "$flavour" = "github" ]; then
-    base="$api/repos/$repo"
-    body="$(jq -Rs . < "$notes")"
-    id="$(curl -sS --fail-with-body -X POST "${auth[@]}" \
-        -H "Accept: application/vnd.github+json" \
-        -d "{\"tag_name\":\"$tag\",\"name\":\"$tag\",\"body\":$body}" \
-        "$base/releases" | jq -r .id)"
+payload="$(python3 - "$tag" "$notes" "$prerelease" <<'PY'
+import json, sys
+tag, notes, prerelease = sys.argv[1], sys.argv[2], sys.argv[3] == "true"
+with open(notes, encoding="utf-8") as f:
+    body = f.read()
+print(json.dumps({
+    "tag_name": tag,
+    "name": tag,
+    "body": body,
+    "prerelease": prerelease,
+}))
+PY
+)"
 
-    upload="${base/api.github.com/uploads.github.com}"
-    for file in "${assets[@]}"; do
-        curl -sS --fail-with-body -X POST "${auth[@]}" \
+base="$api/repos/$repo"
+release="$(curl -sS --fail-with-body -X POST \
+    -H "Authorization: token $token" \
+    -H "Content-Type: application/json" \
+    -H "Accept: application/json" \
+    -d "$payload" "$base/releases")"
+
+id="$(printf '%s' "$release" | python3 -c 'import json,sys; print(json.load(sys.stdin)["id"])')"
+echo "release $id created"
+
+for file in artifacts/release/*; do
+    name="$(basename "$file")"
+    if [ "$flavour" = "github" ]; then
+        upload="${base/api.github.com/uploads.github.com}"
+        curl -sS --fail-with-body -X POST \
+            -H "Authorization: token $token" \
             -H "Content-Type: application/octet-stream" \
             --data-binary "@$file" \
-            "$upload/releases/$id/assets?name=$(basename "$file")" > /dev/null
-        echo "attached $(basename "$file")"
-    done
-else
-    base="$api/repos/$repo"
-    payload="$(jq -n --arg tag "$tag" --rawfile body "$notes" \
-        '{tag_name:$tag, name:$tag, body:$body}')"
-    id="$(curl -sS --fail-with-body -X POST "${auth[@]}" \
-        -H "Content-Type: application/json" -d "$payload" \
-        "$base/releases" | jq -r .id)"
-
-    for file in "${assets[@]}"; do
-        curl -sS --fail-with-body -X POST "${auth[@]}" \
+            "$upload/releases/$id/assets?name=$name" > /dev/null
+    else
+        curl -sS --fail-with-body -X POST \
+            -H "Authorization: token $token" \
             -F "attachment=@$file" \
-            "$base/releases/$id/assets?name=$(basename "$file")" > /dev/null
-        echo "attached $(basename "$file")"
-    done
-fi
+            "$base/releases/$id/assets?name=$name" > /dev/null
+    fi
+    echo "attached $name"
+done
 
 echo "released $tag"
