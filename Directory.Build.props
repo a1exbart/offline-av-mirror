@@ -17,8 +17,8 @@
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <InvariantGlobalization>true</InvariantGlobalization>
 
-    <Authors>a1exbart</Authors>
-    <Copyright>Copyright 2026 a1exbart</Copyright>
+    <Authors>Alex Kolodchenko</Authors>
+    <Copyright>Copyright 2026 Alex Kolodchenko</Copyright>
     <Product>offline-av-mirror</Product>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/a1exbart/offline-av-mirror</RepositoryUrl>
