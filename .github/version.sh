@@ -4,8 +4,9 @@
 #
 # Two ways in, one rule: the version is never stored in a file.
 #
-#   push of a tag   the tag is the version; a SemVer pre-release suffix
-#                   (v1.2.3-rc.1) publishes it as a pre-release
+#   push of a tag   the tag is the version; it is published as a pre-release if
+#                   it carries a SemVer suffix (v1.2.3-rc.1) or if it is still
+#                   a 0.x version — before 1.0.0 nothing here is finished
 #   push to main    git-cliff works out the bump from the conventional commits
 #                   since the last tag; the result is published as a
 #                   pre-release, because nobody has accepted it yet. No bump
@@ -28,7 +29,10 @@ mkdir -p artifacts
 
 if [ "${GITHUB_REF_TYPE:-branch}" = "tag" ]; then
     version="${GITHUB_REF_NAME}"
-    case "$version" in *-*) prerelease=true ;; *) prerelease=false ;; esac
+    case "$version" in
+        *-* | v0.*) prerelease=true ;;
+        *)          prerelease=false ;;
+    esac
     git-cliff --latest --strip all > artifacts/release-notes.md
 else
     version="$(git-cliff --bumped-version)"
