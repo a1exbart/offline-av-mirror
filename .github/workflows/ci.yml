@@ -26,9 +26,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
 
@@ -46,7 +46,7 @@ jobs:
 
       # upload-artifact v4 talks to an API only github.com implements; on a
       # self-hosted forge it refuses outright. Nothing depends on these files.
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always() && github.server_url == 'https://github.com'
         with:
           name: test-results
@@ -62,9 +62,9 @@ jobs:
       matrix:
         rid: [linux-x64, win-x64]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
 
@@ -75,7 +75,7 @@ jobs:
             -p:InformationalVersion="0.0.0-ci.${GITHUB_RUN_NUMBER}+${GITHUB_SHA::7}" \
             -o artifacts/${{ matrix.rid }}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: github.server_url == 'https://github.com'
         with:
           name: offline-av-mirror-${{ matrix.rid }}
@@ -86,11 +86,11 @@ jobs:
     needs: test
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0   # git-cliff needs the history and the tags
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
 
