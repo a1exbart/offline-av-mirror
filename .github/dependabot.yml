@@ -1,12 +1,31 @@
+# Dependabot opens one branch per pull request, so updates are grouped here: one
+# branch a month per ecosystem instead of one per package. Security updates are
+# never grouped by design — those still arrive on their own and at once.
 version: 2
 updates:
   - package-ecosystem: nuget
     directory: "/"
     schedule:
       interval: monthly
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 2
+    groups:
+      dependencies:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+    commit-message:
+      # The release notes are built from the commits, and a dependency bump is
+      # not news; "build" and "ci" are the prefixes cliff.toml skips.
+      prefix: build
+    labels: ["dependencies"]
 
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
       interval: monthly
+    open-pull-requests-limit: 1
+    groups:
+      actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: ci
+    labels: ["dependencies"]
